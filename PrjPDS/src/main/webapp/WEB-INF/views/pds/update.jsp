@@ -112,7 +112,7 @@
         <div>
           <a id   = "aDelete" 
              href = "/deleteFile?file_num=${ file.file_num }&sfile=${ file.sfilename }">
-            🗑
+            ☢☢
           </a>
           <a href="/Pds/download/external/${ file.sfilename }">
             ${ file.filename } 
