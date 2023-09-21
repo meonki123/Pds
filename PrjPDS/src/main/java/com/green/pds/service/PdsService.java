@@ -24,4 +24,6 @@ public interface PdsService {
 
 	void setUpdate(HashMap<String, Object> map, HttpServletRequest request);
 
+	void setReadcountUpdate(HashMap<String, Object> map);
+
 }

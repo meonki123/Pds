@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
@@ -32,204 +33,187 @@ import com.green.pds.vo.PdsVo;
 @Controller
 @RequestMapping("/Pds")
 public class PdsController {
-   
-   @Autowired   
-   private   MenuService  menuService;
-   
-   @Autowired
-   private   PdsService   pdsService;
-   
-   // /Pds/List?menu_id=MENU01
-   @RequestMapping("/List")
-   public   ModelAndView   list(
-      @RequestParam  HashMap<String, Object>  map   
-         ) {
-      
-      // 메뉴 목록
-      List<MenuVo>  menuList  =  menuService.getMenuList();
-      
-      String        menu_id   =  String.valueOf( map.get("menu_id") );      
-      String        menuname  =  menuService.getMenu_name(menu_id);
-      map.put("menuname", menuname);
-      
-      // 게시물 목록
-      List<PdsVo>   pdsList   =  pdsService.getPdsList(menu_id); 
-            
-      ModelAndView  mv = new ModelAndView();
-      mv.setViewName("pds/list");  
-      mv.addObject("menuList", menuList );
-      mv.addObject("pdsList",  pdsList );
-      mv.addObject("map",      map );
-      return  mv;      
-   
-   }
-   
-   // 새글: /Pds/WriteForm?menu_id=MENU01&bnum=0
-   // 답글: /Pds/WriteForm?menu_id=MENU01&idx=13&bnum=13&lvl=1&step=1&nref=13
-   @RequestMapping("/WriteForm")
-   public  ModelAndView   writeForm(
-      @RequestParam  HashMap<String, Object>  map) {
-            
-      // 메뉴 목록
-      List<MenuVo>  menuList  =  menuService.getMenuList(); 
-      
-      PdsVo         pdsVo     =  null;
-      if( map.get("idx") != null  ) {   // 답글 처리
-         // pdsVo  =  pdsService.getView(   )
-      }
-      
-      String   menu_id   =  String.valueOf( map.get("menu_id") );
-      String   menuname  =  menuService.getMenu_name( menu_id );
-      map.put("menuname", menuname);
-      
-      ModelAndView  mv  =  new ModelAndView();
-      mv.setViewName("pds/write");
-      mv.addObject("menuList", menuList );
-      mv.addObject("vo",  pdsVo  );  // 답글처리를 위해
-      mv.addObject("map", map );
-      return mv;
-   }
-   
-   // /Pds/Write 
-   @RequestMapping("/Write")
-   public  ModelAndView   write(
-      @RequestParam  HashMap<String, Object> map,    // String 정보
-      HttpServletRequest   request                   // String + File(Binary)
-         ) {
-      // 넘어온 정보
-      System.out.println( map );
-      // {lvl=, nref=, bnum=0, step=, writer=aaa, title=aaa, cont=aaaa, menu_id=MENU01}
-            
-      // 저장
-      // map 정보
-      // 1. 새글(답글) 글저장 -> Board table  저장 
-      
-      // request 정보활용
-      // 2. 파일 정보 저장    -> Files table  저장 
-      // 3. 실제 파일 저장    -> d:\dev\data\ 저장 : fileupload library
-      
-      pdsService.setWrite(map, request);      
-      
-      String  menu_id =  String.valueOf( map.get("menu_id") );
-      
-      ModelAndView  mv  =  new ModelAndView();
-      mv.setViewName("redirect:/Pds/List?menu_id=" + menu_id);
-      mv.addObject("map", map);
-      return  mv;
-   }
-   
-   // /Pds/View?menu_id=${ pds.menu_id }&idx=${ pds.idx }
-   @RequestMapping("/View")
-   public  ModelAndView   view(
-      @RequestParam  HashMap<String, Object>  map   
-         ) {
-      
-      // 메뉴 목록
-      List<MenuVo>   menuList  =  menuService.getMenuList();
-      
-      // 조회할 정보 : Board -> pdsVo
-       PdsVo         pdsVo     =  pdsService.getView( map );
-      
-      // 조회할 파일정보 : Files -> filesVo
-      List<FilesVo>  fileList  =  pdsService.getFileList( map );
-      
-      // 현재 메뉴이름
-      String         menu_id   =  pdsVo.getMenu_id();
-      String         menuname  =  menuService.getMenu_name(menu_id);
-      
-      ModelAndView   mv  =   new ModelAndView();
-      mv.setViewName("pds/view");
-      mv.addObject("menuList",  menuList );
-      mv.addObject("vo",        pdsVo );
-      mv.addObject("fileList",  fileList );
-      mv.addObject("menuname",  menuname );
-      mv.addObject("map", map );
-      
-      return  mv;
-   }
-   
-   // http://localhost:8080/Pds/Delete?menu_id=MENU01&idx=23
-   // 삭제
-   @RequestMapping("/Delete")
-   public  ModelAndView   delete(
-      @RequestParam  HashMap<String, Object>  map   ) {
-      
-      pdsService.setDelete( map );
-      
-      String  menu_id =  String.valueOf( map.get("menu_id") );      
-      
-      ModelAndView  mv   =  new ModelAndView();
-      mv.setViewName("redirect:/Pds/List?menu_id=" + menu_id);      
-      return  mv;
-      
-   }
-   
-   // /Pds/UpdateForm?menu_id=MENU01&idx=22
-   // 수정
-   @RequestMapping("/UpdateForm")
-   public  ModelAndView  updateForm(
-      @RequestParam  HashMap<String, Object> map ) {
-   
-      // 메뉴 목록
-      List<MenuVo>  menuList   =  menuService.getMenuList();
-         
-      // 수정할 자료 조회
-      PdsVo          pdsVo     =  pdsService.getView( map );
-      
-      // 메뉴이름
-      String         menu_id   =  String.valueOf( map.get("menu_id") ); 
-      String         menuname  =  menuService.getMenu_name( menu_id );    
-      map.put("menuname", menuname);
-      
-      // fileList
-      List<FilesVo>  fileList  =  pdsService.getFileList( map );  
-      
-      
-      ModelAndView   mv        =  new  ModelAndView();
-      mv.setViewName("pds/update");
-      mv.addObject("menuList", menuList);
-      mv.addObject("vo",       pdsVo);      
-      mv.addObject("fileList", fileList);
-      mv.addObject("map",      map);      
-      return  mv;
-      
-   }
-   
-   @RequestMapping("/Update")
-   public   ModelAndView  update(
-      @RequestParam   HashMap<String, Object> map,   
-      HttpServletRequest  request) {
-      
-      pdsService.setUpdate( map, request );
-      
-      String menu_id   = String.valueOf(map.get("menu_id")); 
-      
-      ModelAndView  mv = new ModelAndView();
-      mv.setViewName("redirect:/Pds/List?menu_id=" + menu_id);
-      return mv;
-      
-   }
-   
-   
-   
-   //---------------------------------------------------
-   // /Pds/deleteFile?file_num=12&sfile=flower_1.jpg
-   /*
-    * @RequestMapping("/deleteFile")
-    * 
-    * @ResponseBody public String deleteFile(
-    * 
-    * @RequestParam HashMap<String, Object> map ) {
-    * 
-    * // db 삭제 : Files
-    * 
-    * // 파일삭제 : d:
-    * 
-    * 
-    * String result = ""; map.put("result", result); return map; }
-    */
-   
-      
+	
+	@Autowired	
+	private   MenuService  menuService;
+	
+	@Autowired
+	private   PdsService   pdsService;
+	
+	// /Pds/List?menu_id=MENU01
+	@RequestMapping("/List")
+	public   ModelAndView   list(
+		@RequestParam  HashMap<String, Object>  map	
+			) {
+		
+		// 메뉴 목록
+		List<MenuVo>  menuList  =  menuService.getMenuList();
+		
+		String        menu_id   =  String.valueOf( map.get("menu_id") );		
+		String        menuname  =  menuService.getMenu_name(menu_id);
+		map.put("menuname", menuname);
+		
+		// 게시물 목록
+		List<PdsVo>   pdsList   =  pdsService.getPdsList(menu_id); 
+				
+		ModelAndView  mv = new ModelAndView();
+		mv.setViewName("pds/list");  
+		mv.addObject("menuList", menuList );
+		mv.addObject("pdsList",  pdsList );
+		mv.addObject("map",      map );
+		return  mv;		
+	
+	}
+	
+	// 새글: /Pds/WriteForm?menu_id=MENU01&bnum=0
+	// 답글: /Pds/WriteForm?menu_id=MENU01&idx=13&bnum=13&lvl=1&step=1&nref=13
+	@RequestMapping("/WriteForm")
+	public  ModelAndView   writeForm(
+		@RequestParam  HashMap<String, Object>  map) {
+				
+		
+		// 메뉴 목록
+		List<MenuVo>  menuList  =  menuService.getMenuList(); 
+		
+		PdsVo         pdsVo     =  null;
+		if( map.get("idx") != null  ) {   // 답글 처리
+			// pdsVo  =  pdsService.getView(   )
+		}
+		
+		String   menu_id   =  String.valueOf( map.get("menu_id") );
+		String   menuname  =  menuService.getMenu_name( menu_id );
+		map.put("menuname", menuname);
+		
+		ModelAndView  mv  =  new ModelAndView();
+		mv.setViewName("pds/write");
+		mv.addObject("menuList", menuList );
+		mv.addObject("vo",  pdsVo  );  // 답글처리를 위해
+		mv.addObject("map", map );
+		return mv;
+	}
+	
+	// /Pds/Write 
+	@RequestMapping("/Write")
+	public  ModelAndView   write(
+		@RequestParam  HashMap<String, Object> map,    // String 정보
+		HttpServletRequest   request                   // String + File(Binary)
+			) {
+		// 넘어온 정보
+		System.out.println( map );
+		// {lvl=, nref=, bnum=0, step=, writer=aaa, title=aaa, cont=aaaa, menu_id=MENU01}
+				
+		// 저장
+		// map 정보
+		// 1. 새글(답글) 글저장 -> Board table  저장 
+		
+		// request 정보활용
+		// 2. 파일 정보 저장    -> Files table  저장 
+		// 3. 실제 파일 저장    -> d:\dev\data\ 저장 : fileupload library
+		
+		pdsService.setWrite(map, request);		
+		
+		String  menu_id =  String.valueOf( map.get("menu_id") );
+		
+		ModelAndView  mv  =  new ModelAndView();
+		mv.setViewName("redirect:/Pds/List?menu_id=" + menu_id);
+		mv.addObject("map", map);
+		return  mv;
+	}
+	
+	// /Pds/View?menu_id=${ pds.menu_id }&idx=${ pds.idx }
+	@RequestMapping("/View")
+	public  ModelAndView   view(
+		@RequestParam  HashMap<String, Object>  map	
+			) {
+		
+		// 메뉴 목록
+		List<MenuVo>   menuList  =  menuService.getMenuList();
+		
+		// 조회수 증가 (+1)
+		pdsService.setReadcountUpdate(map);
+		
+		// 조회할 정보 : Board -> pdsVo
+		 PdsVo         pdsVo     =  pdsService.getView( map );
+		
+		// 조회할 파일정보 : Files -> filesVo
+		List<FilesVo>  fileList  =  pdsService.getFileList( map );
+		
+		// 현재 메뉴이름
+		String         menu_id   =  pdsVo.getMenu_id();
+		String         menuname  =  menuService.getMenu_name(menu_id);
+		
+		ModelAndView   mv  =   new ModelAndView();
+		mv.setViewName("pds/view");
+		mv.addObject("menuList",  menuList );
+		mv.addObject("vo",        pdsVo );
+		mv.addObject("fileList",  fileList );
+		mv.addObject("menuname",  menuname );
+		mv.addObject("map", map );
+		
+		return  mv;
+	}
+	
+	// http://localhost:8080/Pds/Delete?menu_id=MENU01&idx=23
+	// 삭제
+	@RequestMapping("/Delete")
+	public  ModelAndView   delete(
+		@RequestParam  HashMap<String, Object>  map	) {
+		
+		pdsService.setDelete( map );
+		
+		String  menu_id =  String.valueOf( map.get("menu_id") );		
+		
+		ModelAndView  mv   =  new ModelAndView();
+		mv.setViewName("redirect:/Pds/List?menu_id=" + menu_id);		
+		return  mv;
+		
+	}
+	
+	// /Pds/UpdateForm?menu_id=MENU01&idx=22
+	// 수정
+	@RequestMapping("/UpdateForm")
+	public  ModelAndView  updateForm(
+		@RequestParam  HashMap<String, Object> map ) {
+	
+		// 메뉴 목록
+		List<MenuVo>  menuList   =  menuService.getMenuList();
+			
+		// 수정할 자료 조회
+		PdsVo          pdsVo     =  pdsService.getView( map );
+		
+		// 메뉴이름
+		String         menu_id   =  String.valueOf( map.get("menu_id") ); 
+		String         menuname  =  menuService.getMenu_name( menu_id );    
+		map.put("menuname", menuname);
+		
+		// fileList
+		List<FilesVo>  fileList  =  pdsService.getFileList( map );  
+				
+		ModelAndView   mv        =  new  ModelAndView();
+		mv.setViewName("pds/update");
+		mv.addObject("menuList", menuList);
+		mv.addObject("vo",       pdsVo);		
+		mv.addObject("fileList", fileList);
+		mv.addObject("map",      map);		
+		return  mv;
+		
+	}
+	
+	@RequestMapping("/Update")
+	public  ModelAndView  update(
+		@RequestParam   HashMap<String, Object>  map,
+		HttpServletRequest                       request ) {
+		
+		pdsService.setUpdate(  map, request );
+		
+		String        menu_id  =  String.valueOf( map.get("menu_id") );    
+		
+		ModelAndView  mv       =  new ModelAndView();
+		mv.setViewName("redirect:/Pds/List?menu_id=" + menu_id);
+		return  mv;
+		
+	}
+		
    //---------------------------------------------------
    // 다운로드
    // type : external, internal
@@ -290,6 +274,7 @@ public class PdsController {
       
    }
 } 
+
 
 
 

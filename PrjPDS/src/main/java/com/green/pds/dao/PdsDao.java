@@ -22,4 +22,6 @@ public interface PdsDao {
 
 	void setUpdate(HashMap<String, Object> map);
 
+	void setReadcountUpdate(HashMap<String, Object> map);
+
 }

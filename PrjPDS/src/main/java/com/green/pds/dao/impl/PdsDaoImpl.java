@@ -84,8 +84,7 @@ public class PdsDaoImpl implements PdsDao {
 		System.out.println("3333---------------");
 		sqlSession.delete("Pds.PdsDelete",  map);   // 게시글 삭제
 		System.out.println("4444---------------");
-		
-		
+				
 	}
 
 	@Override
@@ -105,8 +104,14 @@ public class PdsDaoImpl implements PdsDao {
 		// Files
 		List<FilesVo>  fileList =  (List<FilesVo>) map.get("fileList");
 		if( fileList.size() != 0 )
-			sqlSession.insert("Pds.FileInsert", map);
+			sqlSession.insert("Pds.FileInsert2", map);
+				
+	}
+
+	@Override
+	public void setReadcountUpdate(HashMap<String, Object> map) {
 		
+		sqlSession.update("Pds.ReadcountUpdate",map);
 	}
 
 }

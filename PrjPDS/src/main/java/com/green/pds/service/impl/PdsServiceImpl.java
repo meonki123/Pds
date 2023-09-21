@@ -85,15 +85,15 @@ public class PdsServiceImpl implements PdsService {
 	@Override
 	public void deleteUploadFile(HashMap<String, Object> map) {
 		
-		// Files 에서 삭제
-		pdsDao.deleteUploadFile( map );
+		//Files에서 삭제
+		pdsDao.deleteUploadFile(map);
 		
-		// d:\\dev\\data\flower_1.jpg 삭제
-		String  filepath   = "d:\\dev\\data\\";
-		String  sfilename  = String.valueOf( map.get("sfile") );
+		//d:\\dev\\data\\flower_1.jpg 삭제
+		String filepath  = "d:\\dev\\data\\";
+		String sfilename = String.valueOf( map.get("sfile") );
 		
-		File file          = new File( filepath + sfilename );
-		if ( file.exists() )
+		File file = new File( filepath + sfilename );
+		if (file.exists())
 			file.delete();
 	}
 
@@ -103,8 +103,14 @@ public class PdsServiceImpl implements PdsService {
 		// 1. request 넘어온 파일 저장
 		PdsFile.save(map, request);
 		
-		// 2. db 에 정보를 저장(Board, Files)
-		pdsDao.setUpdate( map );
+		// 2. db에 정보를 저장 (Board,Files)
+		pdsDao.setUpdate(map);
+	}
+
+	@Override
+	public void setReadcountUpdate(HashMap<String, Object> map) {
+		
+		pdsDao.setReadcountUpdate(map);
 		
 	}
 

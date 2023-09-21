@@ -10,29 +10,23 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.green.pds.service.PdsService;
 
-//  @RestController = @Controller + @ResponseBody
-//  @ResponseBody 는 return값이 json, xml 과 같은 문자열가능
-@RestController 
-public class PdsRestController {
-	//  /deleteFile?file_num=12&sfile=flower_1.jpg"
-	
+// @RestController = @Controller + @ResponseBody
+// @ResponseBody 는 return값이 json, xml과 같은 문자열 가능
+@RestController
+public class PdsResController {
+	// /deleteFile?file_num=12&sfile=flower_1.jpg
+
 	@Autowired
-	private  PdsService  pdsService;
+	private PdsService pdsService;
 	
 	@RequestMapping(
-			value   = "/deleteFile",
+			value   = "/deleteFile", 
 			method  = RequestMethod.GET,
-			headers = "Accept=application/json")	
-	public  void  deleteFile(
-		@RequestParam  HashMap<String, Object> map ) {
-		
-		pdsService.deleteUploadFile( map );
-		
-	}
+			headers = "Accept= application/json")
+	
+	public void deleteFile(
+		@RequestParam HashMap<String, Object> map ) {
+			
+			pdsService.deleteUploadFile(map);
+		}
 }
-
-
-
-
-
-

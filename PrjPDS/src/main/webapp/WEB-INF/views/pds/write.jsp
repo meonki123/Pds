@@ -47,10 +47,11 @@
   <form action="/Pds/Write" method="POST"  
         enctype="multipart/form-data"    >
   <input type="hidden" name="menu_id" value="${ map.menu_id }" />  
+  <input type="hidden" name="idx"     value="${ map.idx     }" />
   <input type="hidden" name="bnum"    value="${ map.bnum    }" />
-  <input type="hidden" name="lvl"     value="${ vo.lvl     }" />
-  <input type="hidden" name="step"    value="${ vo.step    }" />
-  <input type="hidden" name="nref"    value="${ vo.nref    }" />
+  <input type="hidden" name="lvl"     value="${ map.lvl     }" />
+  <input type="hidden" name="step"    value="${ map.step    }" />
+  <input type="hidden" name="nref"    value="${ map.nref    }" />
   <table id="table">
    <caption>
      <c:choose>
